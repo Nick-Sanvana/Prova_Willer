@@ -171,18 +171,16 @@ JOIN aeronaves a
 
 
 CREATE VIEW vw_faturamento_por_voo AS
+
 SELECT
     v.id AS voo_id,
     v.numero_voo,
     v.destino,
-    COUNT(pa.id) AS quantidade_passageiros,
-    COALESCE(SUM(pa.valor), 0) AS receita_total
+    SUM(pa.valor) AS receita_total
 FROM voos v
-LEFT JOIN passagens pa
+JOIN passagens pa
     ON v.id = pa.voo_id
 GROUP BY
     v.id,
     v.numero_voo,
     v.destino;
-
-
