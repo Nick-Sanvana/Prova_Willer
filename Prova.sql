@@ -64,7 +64,7 @@ REFERENCES passageiros(id)
 on delete restrict
 )
 
-------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 
 insert into aeronaves(modelo, codigo_cauda, capacidade) values
 ('aviaoDesert','55','10'),
@@ -103,7 +103,7 @@ insert into passagens(voos_id, passageiros_id, assento, classe, valor) values
 ('10','56','B52','Executiva','1025.60'),
 ('3','70','A20','Economica','300.00')
 
----------------------------------------------------------
+----------------------------------------------------------------------------------------------
 
 
 
@@ -120,6 +120,7 @@ JOIN pilotos
     ON voos.pilotos_id = pilotos.id
 WHERE voos.status IN ('Agendado', 'Em Voo');
 
+
 SELECT
     classe,
     SUM(valor) AS valor_total
@@ -127,45 +128,37 @@ FROM passagens
 GROUP BY classe;
 
 
+
 SELECT
-    classe,
-    SUM(valor) AS total_arrecadado
+    passagens.nome AS passageiro,
+    voo.numero_voo,
+    passagens.assento,
+    passagens.valor
 FROM passagens
-GROUP BY classe;
+JOIN passageiros 
+    ON passagens.passageiro_id = passageiros.id
+JOIN voos 
+    ON passagens.voo_id = voos.id
+WHERE passagens.classe = 'Executiva'
+  AND passagens.valor > 800
+ORDER BY passagens.valor DESC;
 
 
 
-
-SELECT
-    p.nome AS passageiro,
-    v.numero_voo,
-    pa.assento,
-    pa.valor
-FROM passagens pa
-JOIN passageiros p
-    ON pa.passageiro_id = p.id
-JOIN voos v
-    ON pa.voo_id = v.id
-WHERE pa.classe = 'Executiva'
-  AND pa.valor > 800
-ORDER BY pa.valor DESC;
-
-
-
-
+-------------------------------------------------------------------------------------
 
 CREATE VIEW vw_painel_aeroporto AS
 SELECT
-    v.numero_voo,
-    v.data_hora,
-    v.origem,
-    v.destino,
-    a.modelo,
-    a.codigo_cauda,
-    v.status
-FROM voos v
+    voos.numero_voo,
+    voos.data_hora,
+    voos.origem,
+    voos.destino,
+    aeronaves.modelo,
+    aeronaves.codigo_cauda,
+    voos.status
+FROM voos 
 JOIN aeronaves a
-    ON v.aeronave_id = a.id;
+    ON voos.aeronave_id = aeoranaves.id;
 
 
 
@@ -176,7 +169,7 @@ SELECT
     v.id AS voo_id,
     v.numero_voo,
     v.destino,
-    SUM(pa.valor) AS receita_total
+    SUM(pa.valor) AS valor_total
 FROM voos v
 JOIN passagens pa
     ON v.id = pa.voo_id
